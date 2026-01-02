@@ -21,7 +21,10 @@ add_executable(chess_ai main.cpp
         assess.cpp
         assess.cpp
         check.cpp
-        compare_sizes.cpp)
+        assess_add.cpp
+        AiWorker.h
+        Headerfile_constant.h
+        AiWorker.cpp)
 target_link_libraries(chess_ai
         Qt::Core
         Qt::Gui
