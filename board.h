@@ -29,6 +29,7 @@ public slots:
     void aiPlaceStone(int row, int col, int player);
 signals:
     void startSearch(const QVector<int> &boardFlat, int aiPlayer, int last_x, int last_y, int depth);
+    void finished();
 protected:
     void paintEvent(QPaintEvent *)override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -69,7 +70,6 @@ struct Node {
     int last_y;
     int score;
     int depth;
-    //size_t index;
 
     Node *best_children;
     Node *parent;
@@ -103,8 +103,6 @@ struct Node {
     }
 
     void addChild(Node* child) {
-
-        //child->index=children.size();
         children.push_back(child);
     }
 

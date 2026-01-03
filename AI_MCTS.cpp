@@ -9,58 +9,26 @@
 int judge_type(int (*board)[board_line],int x,int y,int (*board_copy)[board_line][3][4],int player);
 bool able_full(int (*board)[board_line],int x,int y);//能否落子
 int check(int (*board)[board_line],int x,int y);
-int evaluate(int (*board)[board_line]);
+int evaluate(int (*board)[board_line],int aiplayer);
 int evaluate_add(Node *node);
 int special_check(int (*board)[board_line],int currentPlayer,int x,int y);
 
 //本源代码
 
-int Alpha_Beta(Node*  node,int alpha, int beta);
+int Alpha_Beta(Node*  node,int alpha, int beta,int aiplayer);
 std::pair<int,int> ai_move(int (*board)[board_line],int currentPlayer,int x,int y,int depth);
 std::pair<int,int> special_move(int (*board)[board_line],int currentPlayer);
 
 
 
-int Alpha_Beta(Node*  node,int alpha, int beta){
+int Alpha_Beta(Node*  node,int alpha, int beta,int aiplayer){
     if (node->depth==0||check(node->board,node->last_x,node->last_y)) {
-        return evaluate(node->board);
-
-        //return node->score;
+        return evaluate(node->board,aiplayer);
     }
 
 
     int max_eval=MIN,min_eval=MAX;
     std::vector<std::pair<std::pair<int, int>, std::pair<int, double>> > children;//分别为x坐标，y坐标，分数，中心系数
-
-
-    /*if (node->parent!=nullptr) {
-        for (int i=std::max(node->parent->last_x-2,0);i<std::min(node->parent->last_x+3,board_line);i++) {
-            for (int j=std::max(node->parent->last_y-2,0);j<std::min(node->parent->last_y+3,board_line);j++) {
-                if (able_full(node->board,i,j)) {
-                    Node* child=new Node();
-                    child->extend_parent(node,i,j);
-                    double distance=sqrt(pow(node->parent->last_x-i,2)+pow(node->parent->last_y-j,2));
-                    double center_number=1+(5/(1+distance))*0.1;
-                    children.push_back({{i, j},{evaluate_add(child),center_number}});
-                    delete child;
-
-                }
-            }
-        }
-    }
-    for (int i=std::max(node->last_x-5,0);i<std::min(node->last_x+6,board_line);i++) {
-        for (int j=std::max(node->last_y-5,0);j<std::min(node->last_y+6,board_line);j++) {
-            if (able_full(node->board,i,j)) {
-                Node* child=new Node();
-                child->extend_parent(node,i,j);
-                double distance=sqrt(pow(node->last_x-i,2)+pow(node->last_y-j,2));
-                double center_number=1+(5/(1+distance))*0.1;
-                children.push_back({{i, j},{evaluate_add(child),center_number}});
-                delete child;
-
-            }
-        }
-    }*/
 
     int board_check[board_line][board_line];
     memset(board_check,0,sizeof(board_check));
@@ -94,8 +62,8 @@ int Alpha_Beta(Node*  node,int alpha, int beta){
             if (able_full(node->board,i,j)&&(!board_check[i][j])) {
                 Node* child=new Node();
                 child->extend_parent(node,i,j);
-                double distance=sqrt(pow(node->last_x-i,2)+pow(node->last_y-j,2));
-                //double center_number=1+(5/(1+distance))*0.1;
+                //double distance=sqrt(pow(node->last_x-i,2)+pow(node->last_y-j,2));
+                //double center_number=1+(5/(1+distance))*0.1;用于靠近前一步落子，不用可设为1
                 double center_number=1;
                 children.push_back({{i, j},{evaluate_add(child),center_number}});
                 delete child;
@@ -119,7 +87,7 @@ int Alpha_Beta(Node*  node,int alpha, int beta){
         }
         K=std::min(children.size(),static_cast<size_t>(to_next_screen));
         if (K==0) {
-            return evaluate(node->board);
+            return evaluate(node->board,aiplayer);
         }
     }
     std::partial_sort(children.begin(), children.begin()+K,children.end(),[](const auto& a, const auto& b){ return a.second.first*a.second.second>b.second.first*b.second.second;});
@@ -136,10 +104,10 @@ int Alpha_Beta(Node*  node,int alpha, int beta){
     //释放vector内存
 
     for (int i=0;i<K;i++) {
-        int eval=Alpha_Beta(node->children[i],alpha,beta);
+        int eval=Alpha_Beta(node->children[i],alpha,beta,aiplayer);
 
 
-        if (node->currentPlayer==2) {
+        if (node->currentPlayer==aiplayer) {
             if (eval>max_eval) {
                 max_eval=eval;
             }
@@ -152,7 +120,7 @@ int Alpha_Beta(Node*  node,int alpha, int beta){
                 return max_eval;
             }
         }
-        if (node->currentPlayer==1) {
+        if (node->currentPlayer==((aiplayer==1)?2:1)) {
             if (eval<min_eval) {
                 min_eval=eval;
             }
@@ -167,12 +135,12 @@ int Alpha_Beta(Node*  node,int alpha, int beta){
         }
     }
 
-    if (node->currentPlayer==2) {
+    if (node->currentPlayer==aiplayer) {
         for (auto child : node->children) {delete child;}
         node->children.clear();
         return max_eval;
     }
-    if (node->currentPlayer==1) {
+    if (node->currentPlayer==((aiplayer==1)?2:1)) {
         for (auto child : node->children) {delete child;}
         node->children.clear();
         return min_eval;
@@ -180,7 +148,6 @@ int Alpha_Beta(Node*  node,int alpha, int beta){
 }
 
 std::pair<int,int> ai_move(int (*board)[board_line],int currentPlayer,int x,int y,int depth) {
-    qDebug()<<"*********************\n";
     Node* root=new Node();
     root->depth=depth;
     root->copy_board(board);
@@ -188,7 +155,7 @@ std::pair<int,int> ai_move(int (*board)[board_line],int currentPlayer,int x,int 
     root->last_x=x;
     root->last_y=y;
 
-    root->score=evaluate(root->board);
+    root->score=evaluate(root->board,currentPlayer);
 
     std::pair<int,int> special_m=special_move(board,currentPlayer);
     if (special_m.first!=-1&&special_m.second!=-1) {
@@ -228,11 +195,11 @@ std::pair<int,int> ai_move(int (*board)[board_line],int currentPlayer,int x,int 
     for(int i=0;i<board_line;i++) {
         for(int j=0;j<board_line;j++) {
             if (able_full(board,i,j)&&(!board_check[i][j])) {
-                qDebug()<<i<<" "<<j<<"\n";
+                qDebug()<<i<<" "<<j<<"\n";//调试使用,可用于观察进程
                 Node* child=new Node();
                 child->extend_parent(root,i,j);
                 evaluate_add(child);
-                int eval=Alpha_Beta(child,MIN,MAX);
+                int eval=Alpha_Beta(child,MIN,MAX,currentPlayer);
                 if (eval>max_score) {
                     max_score=eval;
                     max_x=i;
@@ -244,7 +211,7 @@ std::pair<int,int> ai_move(int (*board)[board_line],int currentPlayer,int x,int 
         }
     }
     delete root;
-    qDebug()<<max_x<<" "<<max_y<<"\n";
+    qDebug()<<max_x<<" "<<max_y<<"\n";//调试使用，观察落点
     return std::pair<int,int>(max_x,max_y);
 
 }

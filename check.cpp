@@ -56,11 +56,10 @@ int special_check(int (*board)[board_line],int currentPlayer,int x,int y) {
             int nx = x+dx[i]*step;
             int ny = y+dy[i]*step;
             if (nx>=board_line||ny>=board_line||nx<=-1||ny<=-1) {
-                gap[i/2]=0;
                 break;
             }
             if (board[nx][ny]==0) {
-                gap[i/2]=1;
+                gap[i/2]++;
                 break;
             }
             if (board[nx][ny]!=0&&(step==1||board[nx-dx[i]][ny-dy[i]]==board[nx][ny])){
@@ -70,7 +69,6 @@ int special_check(int (*board)[board_line],int currentPlayer,int x,int y) {
                     count[i/2][2]++;
                 }
             }else if (board[nx][ny]!=0) {
-                gap[i/2]=0;
                 break;
             }
         }

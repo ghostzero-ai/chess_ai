@@ -4,11 +4,10 @@ int add(int count,int gap);
 void count_gap(int *dx,int *dy,int *count,int *gap,int (*board)[board_line],int x,int y,int (*board_copy)[board_line][3][4],int player);
 void add_cover(int *ans,int *dx,int *dy,int *count,int *gap,int (*board)[board_line],int x,int y,int (*board_copy)[board_line][3][4],int player);
 int judge_type(int (*board)[board_line],int x,int y,int (*board_copy)[board_line][3][4],int player);
-int evaluate(int (*board)[board_line]);
+int evaluate(int (*board)[board_line],int aiplayer);
 
 
 int add(int count,int gap) {
-    //int evaluate[10]=EVALUATE;
     if (count<=0) {
         return 0;
     }
@@ -105,16 +104,13 @@ int judge_type(int (*board)[board_line],int x,int y,int (*board_copy)[board_line
     int count[4]={1,1,1,1};
     int gap[4]={0,0,0,0};
     int ans=0;
-    //int evaluate[10]=EVALUATE;//0五，1双空四，2单空四，3双空三，4单空三，5双空二，6单空二，7双空一，8单空一，9死棋
-    //(*board_copy)[board_line][3][4] 三维为黑白，1为黑，2为白；四维为方向，0为x方向，1为y方向，2为xy同方向，3为xy异方向
     count_gap(dx,dy,count,gap,board,x,y,board_copy,player);
     add_cover(&ans,dx,dy,count,gap,board,x,y,board_copy,player);
     return ans;
 }
 
-int evaluate(int (*board)[board_line]) {
+int evaluate(int (*board)[board_line],int aiplayer) {
     int evaluation1=0,evaluation2=0;
-    //int evaluate[10]=EVALUATE;
     int board_copy[board_line][board_line][3][4];//三维为黑白，1为黑，2为白；四维为方向，0为x方向，1为y方向，2为xy同方向，3为xy异方向
     memset(board_copy,0,sizeof(board_copy));
     for(int i=0;i<board_line;i++) {
@@ -127,6 +123,11 @@ int evaluate(int (*board)[board_line]) {
             }
         }
     }
-    return evaluation2-evaluation1;
+    if (aiplayer==2) {
+        return evaluation2-evaluation1;
+    }
+    if (aiplayer==1) {
+        return evaluation1-evaluation2;
+    }
 }
 
