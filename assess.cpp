@@ -1,10 +1,12 @@
 #include "board.h"
 
+
+
 int add(int count,int gap);
 void count_gap(int *dx,int *dy,int *count,int *gap,int (*board)[board_line],int x,int y,int (*board_copy)[board_line][3][4],int player);
 void add_cover(int *ans,int *dx,int *dy,int *count,int *gap,int (*board)[board_line],int x,int y,int (*board_copy)[board_line][3][4],int player);
 int judge_type(int (*board)[board_line],int x,int y,int (*board_copy)[board_line][3][4],int player);
-int evaluate(int (*board)[board_line],int aiplayer);
+int evaluate(int (*board)[board_line],int aiplayer);//用于评估整个棋盘的分数
 
 
 int add(int count,int gap) {

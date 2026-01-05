@@ -11,8 +11,7 @@ int main(int argc, char *argv[]) {
     AiWorker *worker = new AiWorker();
     worker->moveToThread(thread);
 
-    //QObject::connect(thread, &QThread::finished, worker, &QObject::deleteLater);
-    //QObject::connect(worker, &AiWorker::finished, thread, &QThread::quit);
+
 
 
 

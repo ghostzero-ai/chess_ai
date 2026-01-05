@@ -1,5 +1,8 @@
 #include "board.h"
 
+
+
+
 //其他源代码调用
 int add(int count,int gap);
 
@@ -8,7 +11,7 @@ int add(int count,int gap);
 
 
 //本源代码
-int evaluate_add(Node *node);
+int evaluate_add(Node *node);//用于评估新下子的分数
 int score_add(int currentPlayer, int count[8][3], int gap[8]);
 
 int score_add(int currentPlayer, int count[8][3], int gap[8]) {
